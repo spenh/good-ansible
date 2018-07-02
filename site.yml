@@ -1,0 +1,30 @@
+---
+
+- name: Deploy 3-tier app
+  hosts: all
+  gather_facts: true
+  become: true
+
+  pre_tasks:
+  - name: enable repos
+    copy:
+      src: files/open_three-tier-app.repo
+      dest: /etc/yum.repos.d/open_three-tier-app.repo
+      mode: 0644
+
+  tasks:
+
+  - name: Run haproxy role
+    include_role: 
+      name: haproxy
+    when: "'frontends' in group_names"
+
+  - name: Run tomcat role
+    include_role:
+      name: tomcat
+    when: "'apps' in group_names"
+
+  - name: Run postgres role
+    include_role:
+      name: postgres
+    when: "'appdbs' in group_names"
